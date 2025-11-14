@@ -1,0 +1,125 @@
+SQL 함수
+	기본적으로 쿼리(질의)문을 더욱 강력하게 하고, 데이터값을 조작하는데 있어
+	도움이 되는 것이 바로 SQL함수이다.
+
+	SQL 함수의 특징과 장점
+	: 자원에 대한 연산을 수행할 수 있다.
+	: 개별적인 데이터 항목을 수행 할 수 있다.
+	: 그룹화 작업에도 용이하다.
+
+	SQL 함수의 종류
+	 1) 문자함수(변환, 조작)
+	 2) 숫자 함수
+	 3) 날짜 함수
+
+	1) 문자함수
+	-변환함수
+		LOWER(컬럼명 또는 값) : 알파벳 값을 소문자로 변환
+		UPPER(컬럼명 또는 값) : 알파벳 값을 대문자로 변환
+		INITCAP(컬럼명 또는 값) : 알파벳 첫문자만 대문자로 변환
+
+	Ex) 사원테이블에서 직종이 'salesman'인 사원들의 정보를
+		사번, 이름, 직종, 순으로 출력해보자
+
+	SELECT empno, ename, job FROM emp
+		WHERE LOWER(job)= 'salesman';
+
+	-조작함수
+		CONCAT : 두 문자열을 연결
+		SUBSTR : 특정 문자나 문자열을 추출(자바의  subString() )
+		SUBSTRING : 위와 똑같음
+		LEFT : 왼쪽부터 지정한 길이만큼 추출
+		RIGHT : 오른쪽부터 지정한 길이만큼 추출
+		LENGTH : 문자열의 길이
+		INSTR : 명시된 문자열의 위치값(자바의 indexOf() )
+		LTRIM : 문자열의 왼쪽에 있는 공백제거 : "  Test" --> "Test"
+		RTRIM : 문자열의 오른쪽에 있는 공백제거 : "   Test    " --> "   Test"
+		REVERSE : 문자열의 순서를 역순으로 만든다.
+
+	Ex) 사원테이블에서 각 사원들의 직종의 3번째 문자값을 추출하여 출력해보자!
+		출력할 컬럼명은 사번, 이름, 직종, 순이다.
+
+		SELECT empno, ename, job, SUBSTR(job, 3, 1) AS sub1, SUBSTRING(job, 3, 1),LENGTH(job) 
+		FROM emp
+
+		AS : 이름을 바꾸는것
+
+	문제1) 사원 테이블에서 각 사원들의 직종 값에 있는 'S'의 위치값을 알아내자
+		
+		SELECT empno, ename, job, INSTR(job,'S') 
+			FROM emp;
+
+	2) 숫자함수
+	 ROUND : 반올림
+	 CEIL : 소수점 이하를 자르면서 올림(2.223 --> 3) /*(3.00)은 3으로 출력*/
+	 FLOOR : 소수점 이하를 자르면서 버림(3.333 --> 3)
+	 POW : 거듭제곱 
+	 MOD : 나머지값
+	 GREATEST : 최대값
+	 LEAST : 최소값
+
+	SELECT CEIL(3.14), ceil(5.01), ceil(5.00),ceil(3.00001);
+	SELECT FLOOR(3.1111); -- 3
+
+	SELECT ROUND(1200.34,0),ROUND(1234.34,-2),ROUND(1254.34,-2),ROUND(1200.34,1);
+	-- 1200 1200 1300 1200.3
+
+	SELECT ROUND(1200.34,0),ROUND(1234.34,-2),
+	MOD(10,3),MOD(20,3),FLOOR(3.95), GREATEST(10,23,8,45,34) as '최대값';
+
+	3) 날짜함수 : 현재 날짜(NOW( ) )
+		weekday(날짜) : 요일(월요일 -0, 화요일 -1, .... 일요일 -6)
+		dayofweek(날짜) : 한주의 요일 (일 -1, 월 -2, .... ,토 -7)
+
+	SELECT NOW(),dayofweek(now()); -- 일 1 월 2 화 3 이런식임
+	SELECT dayofweek('2025-11-22');-- 7 토요일
+		
+		dayofMonth(날짜) : 그달에 몇번째 날인지 알아낸다.
+		dayofyear(날짜) : 그해에 몇번째 날인지 알아낸다.
+
+	SELECT NOW(),dayofmonth(now()), dayofyear(NOW());
+		
+		month(날짜) : 해당 날짜의 월 반환
+		year(날짜) : 해당 날짜의 년도 반환
+		dayname(날짜) : 요일 명을  반환
+		quarter(날짜) : 분기 반환(1~4)
+
+	SELECT NOW(),month(now()), dayname(NOW()),quarter(now());
+
+		period_add(날짜형식, 더할 개월 수) : 몇 개월 뒤를 구할 때 사용
+
+	SELECT now(), period_add(202511,2);
+
+		 period_diff(현재 년월, 입사 년월) : 두 날짜 사이의 개월 수를 반환 (Ex 근속 개월 수)
+	
+	SELECT now(), period_diff(202506,202411); /*입사일을 뒤에 두고 현재날짜를 앞에 둬야함*/
+
+		현재 날짜는 NOW()다. 여기서 년도와 월을 구해내는 방법
+	Ex) 사원 테이블에서 각 사원들이 현재까지 몇개월 째 일을 하는지? 알아보자!
+
+	년도 : SELECT SUBSTR(NOW(),1,4) 월 : SUBSTR(NOW(),6,2)
+
+	두개를 합쳐야 202506이것처럼 나옴 
+	SELECT empno,ename, NOW(), period_diff(CONCAT(SUBSTR(hiredate,1,4),SUBSTR(hiredate,6,2)))
+	
+	date_format(날짜, 형식)
+	형식은 정해지는 것에 따라 날짜 또는 시간을 출력한다.
+		'%m' : 월 이름	
+		'%w' : 요일 이름	
+		'%d' : 일(며칠)	
+		'%Y' : 4자리의 년도	
+		'%y' : 2자리의 년도
+		'%H' : 24시 형식의 시간
+		'%h : 12시 형식의 시간
+		'%i' : 분(0~59)
+		'%s' : 초(0~59)
+	현재 날짜를 가지고 년/월 형식으로 출력해보자
+
+	SELECT empno,ename, now(),date_format(now(),'%Y%m') As c_date FROM emp;
+
+	SELECT  empno,ename, NOW(), period_diff(date_format(now(),'%Y%m'),
+	date_format(hiredate,'%Y%m'))
+	FROM emp;
+	
+ 
+
